@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>嚕卡訂閱積分查詢系統</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons for premium visual icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght=300;400;500;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #0e0e10; /* Twitch Dark background */
+        }
+        .twitch-purple {
+            color: #9146ff;
+        }
+        .bg-twitch-purple {
+            background-color: #9146ff;
+        }
+        .hover-bg-twitch-purple:hover {
+            background-color: #772ce8;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #18181b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9146ff;
+        }
+    </style>
+</head>
+<body class="text-gray-100 min-h-screen flex flex-col justify-between selection:bg-purple-500 selection:text-white">
+
+    <!-- Header / Navigation -->
+    <header class="border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-md sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-twitch-purple p-2 rounded-lg text-white shadow-lg shadow-purple-900/30">
+                    <i data-lucide="twitch" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl tracking-wider text-white flex items-center gap-2">
+                        嚕卡訂閱積分查詢系統
+                        <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 連線正常
+                        </span>
+                    </h1>
+                </div>
+            </div>
+            <button onclick="fetchAllData(true)" class="text-zinc-400 hover:text-white p-2 hover:bg-zinc-800 rounded-lg transition-all" title="重新整理資料">
+                <i data-lucide="rotate-cw" id="refresh-icon" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
+        
+        <!-- Hero Search Section -->
+        <div class="text-center max-w-2xl mx-auto mb-10">
+            <h2 class="text-3xl md:text-4xl font-extrabold mb-3 tracking-tight">
+                輸入你的 <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Twitch ID</span>
+            </h2>
+            <p class="text-zinc-400 text-sm md:text-base">
+                即時查詢目前擁有的剩餘積分、已兌換記錄，與實況主一同享受精彩好禮！
+            </p>
+        </div>
+
+        <!-- Search & Query Card -->
+        <div class="max-w-xl mx-auto mb-12">
+            <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-2xl relative overflow-hidden">
+                <!-- Background blur effects -->
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="space-y-4">
+                    <!-- Search Input Group -->
+                    <div>
+                        <label for="twitch-id-input" class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Twitch 使用者帳號 (ID)</label>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <div class="relative flex-grow">
+                                <div class="absolute inset-y-0 left-4 flex items-center text-zinc-500 pointer-events-none">
+                                    <i data-lucide="user" class="w-5 h-5"></i>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    id="twitch-id-input" 
+                                    placeholder="例如: sheng_yi_08" 
+                                    class="w-full pl-12 pr-4 py-3.5 bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-zinc-600 font-medium transition-all"
+                                    onkeypress="handleKeyPress(event)"
+                                >
+                            </div>
+                            <div class="flex gap-2 w-full sm:w-auto">
+                                <button 
+                                    onclick="searchPoints()" 
+                                    class="flex-1 sm:flex-none px-6 py-3.5 bg-twitch-purple hover-bg-twitch-purple text-white font-bold rounded-xl transition-all text-sm shadow-md flex items-center justify-center gap-1.5 whitespace-nowrap"
+                                >
+                                    <i data-lucide="search" class="w-4 h-4"></i>
+                                    查詢
+                                </button>
+                                <a 
+                                    href="https://pse.is/9cantr" 
+                                    target="_blank" 
+                                    class="flex-1 sm:flex-none px-5 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all text-sm shadow-md flex items-center justify-center gap-1.5 whitespace-nowrap"
+                                >
+                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                    立即兌換
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loader (Hidden by default) -->
+                    <div id="loader" class="hidden py-8 text-center">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+                        <p class="text-sm text-zinc-500 mt-2">正在從 Google 表單同步最新數據...</p>
+                    </div>
+
+                    <!-- Search Result (Hidden by default) -->
+                    <div id="result-container" class="hidden pt-2">
+                        <!-- Success Result -->
+                        <div id="result-success" class="space-y-6">
+                            <!-- Divider -->
+                            <div class="border-t border-zinc-800/80 my-4"></div>
+
+                            <!-- User Header -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 bg-purple-950 border border-purple-500/30 rounded-xl flex items-center justify-center text-purple-400 font-bold text-lg" id="avatar-fallback">
+                                        T
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-zinc-500">Twitch 訂閱者</div>
+                                        <div class="font-bold text-xl text-white tracking-wide" id="result-user-id">User_ID</div>
+                                    </div>
+                                </div>
+                                <span class="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+                                    <i data-lucide="gem" class="w-3.5 h-3.5"></i> 核心粉絲
+                                </span>
+                            </div>
+
+                            <!-- Score Dashboard Grid -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <!-- Remaining Score -->
+                                <div class="bg-zinc-950/80 border border-zinc-800 rounded-xl p-4 text-center relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+                                    <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
+                                    <div class="text-xs text-zinc-500 font-medium mb-1 flex items-center justify-center gap-1">
+                                        <i data-lucide="sparkles" class="w-3 h-3 text-emerald-400"></i> 剩餘積分
+                                    </div>
+                                    <div class="text-3xl font-black text-emerald-400 tracking-tight" id="result-score-remaining">0</div>
+                                </div>
+
+                                <!-- Used Score -->
+                                <div class="bg-zinc-950/80 border border-zinc-800 rounded-xl p-4 text-center relative overflow-hidden group hover:border-zinc-700 transition-all">
+                                    <div class="absolute top-0 left-0 w-1 h-full bg-zinc-600"></div>
+                                    <div class="text-xs text-zinc-500 font-medium mb-1 flex items-center justify-center gap-1">
+                                        <i data-lucide="shopping-bag" class="w-3 h-3 text-zinc-400"></i> 已使用積分
+                                    </div>
+                                    <div class="text-3xl font-black text-zinc-400 tracking-tight" id="result-score-used">0</div>
+                                </div>
+                            </div>
+
+                            <!-- Total Score Indicator & Progress Bar -->
+                            <div class="bg-zinc-950/40 border border-zinc-800/80 rounded-xl p-4">
+                                <div class="flex justify-between items-center mb-2 text-xs">
+                                    <span class="text-zinc-400">總累積獲得積分: <strong class="text-white" id="result-score-total">0</strong></span>
+                                    <span class="text-zinc-500" id="result-ratio-text">使用率 0%</span>
+                                </div>
+                                <div class="w-full bg-zinc-800 h-2.5 rounded-full overflow-hidden flex">
+                                    <div id="progress-bar-used" class="bg-zinc-500 h-full transition-all duration-500" style="width: 0%"></div>
+                                    <div id="progress-bar-remaining" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between items-center mt-2 text-[10px] text-zinc-500">
+                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-zinc-500 inline-block"></span> 已使用</span>
+                                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> 可用剩餘</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Error Result -->
+                        <div id="result-error" class="hidden text-center py-6 space-y-3">
+                            <div class="inline-flex p-3 bg-rose-500/10 text-rose-400 rounded-full border border-rose-500/20">
+                                <i data-lucide="alert-circle" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-bold text-lg text-rose-400">找不到此 Twitch 帳號</h3>
+                            <p class="text-zinc-400 text-sm max-w-xs mx-auto">
+                                請檢查您的帳號輸入是否正確（英文字母大小寫皆可），或與實況管理員確認您的資料已登錄至表單中。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reward Redemption Catalog -->
+        <div class="max-w-3xl mx-auto bg-zinc-900/60 border border-zinc-800 rounded-2xl p-6 mt-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-lg flex items-center gap-2">
+                    <i data-lucide="gift" class="w-5 h-5 text-purple-400"></i>
+                    精選獎勵兌換清單
+                </h3>
+                <span class="text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full">積分解鎖</span>
+            </div>
+
+            <!-- Reward Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="rewards-container">
+                <!-- Dynamic reward items inserted here -->
+                <div class="animate-pulse bg-zinc-950/40 border border-zinc-850 rounded-xl p-4 h-36"></div>
+                <div class="animate-pulse bg-zinc-950/40 border border-zinc-850 rounded-xl p-4 h-36"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Image Lightbox Modal -->
+    <div id="image-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4 transition-all" onclick="closeImageModal()">
+        <div class="relative max-w-4xl max-h-[90vh] bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col items-center p-3 sm:p-5" onclick="event.stopPropagation()">
+            <!-- Close Button -->
+            <button onclick="closeImageModal()" class="absolute top-3 right-3 text-zinc-400 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 p-2 rounded-full z-10 transition-colors" title="關閉">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <!-- Modal Title -->
+            <h4 id="modal-image-title" class="text-sm sm:text-base font-bold text-white mb-3 px-8 text-center truncate max-w-full"></h4>
+            <!-- Modal Image Container -->
+            <div class="overflow-auto max-h-[75vh] w-full flex items-center justify-center rounded-xl bg-zinc-950 p-2 border border-zinc-800/50">
+                <img id="modal-image-src" src="" alt="獎勵大圖" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg">
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-zinc-900 bg-zinc-950 py-6 text-center text-xs text-zinc-500">
+        <div class="max-w-6xl mx-auto px-4 space-y-2">
+            <p>© 2026 嚕卡訂閱積分查詢系統. All rights reserved.</p>
+            <p>非官方自製小工具</p>
+        </div>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script>
+        // Global variables
+        const SPREADSHEET_ID = '120hy8SEoR8dzuRT18XL375FFAlFXDvE4JzYKcaALZdA';
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
+        
+        let subscribersData = [];
+        let rewardsData = [];
+
+        // Intelligent URL extractor & converter for Google Sheets images
+        function cleanImageUrl(rawStr) {
+            if (!rawStr) return '';
+            
+            let cleaned = rawStr.replace(/^"|"$/g, '').trim();
+            
+            // Extract http/https URL if embedded in =IMAGE("...") formula or text
+            const match = cleaned.match(/https?:\/\/[^\s"'<>()]+/i);
+            if (!match) return '';
+            
+            let url = match[0];
+            
+            // Handle Google Drive Share Links
+            if (url.includes('drive.google.com')) {
+                const idMatch = url.match(/\/file\/d\/([^\/]+)/) || url.match(/[?&]id=([^&]+)/);
+                if (idMatch && idMatch[1]) {
+                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+                }
+            }
+            
+            // Handle Imgur Page Links
+            if (url.includes('imgur.com') && !url.includes('i.imgur.com')) {
+                const imgurMatch = url.match(/imgur\.com\/([a-zA-Z0-9]+)/);
+                if (imgurMatch && imgurMatch[1]) {
+                    return `https://i.imgur.com/${imgurMatch[1]}.png`;
+                }
+            }
+            
+            return url;
+        }
+
+        // Custom CSV parser handling quotes safely and multi-column mapping
+        function parseCSV(text) {
+            const lines = text.split(/\r?\n/);
+            const subs = [];
+            const rewards = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                let columns = [];
+                let insideQuotes = false;
+                let currentWord = '';
+
+                for (let j = 0; j < line.length; j++) {
+                    const char = line[j];
+                    if (char === '"') {
+                        insideQuotes = !insideQuotes;
+                    } else if (char === ',' && !insideQuotes) {
+                        columns.push(currentWord.trim());
+                        currentWord = '';
+                    } else {
+                        currentWord += char;
+                    }
+                }
+                columns.push(currentWord.trim());
+
+                // Map A (ID), B (Remaining Points), C (Used Points)
+                if (columns.length >= 3) {
+                    const cleanId = columns[0].replace(/^"|"$/g, '').trim();
+                    const cleanRemaining = parseInt(columns[1].replace(/^"|"$/g, '').trim()) || 0;
+                    const cleanUsed = parseInt(columns[2].replace(/^"|"$/g, '').trim()) || 0;
+
+                    if (cleanId && !['ID', '帳號', 'TWITCH ID', '使用者帳號'].includes(cleanId.toUpperCase())) {
+                        subs.push({
+                            id: cleanId,
+                            remaining: cleanRemaining,
+                            used: cleanUsed,
+                            total: cleanRemaining + cleanUsed
+                        });
+                    }
+                }
+
+                // Map E (Reward Name), F (Required Points), G (Image URL)
+                let rewardName = '';
+                let rewardPoints = 0;
+                let rawImg = '';
+
+                if (columns.length >= 5) {
+                    rewardName = columns[4] ? columns[4].replace(/^"|"$/g, '').trim() : '';
+                    rewardPoints = parseInt(columns[5] ? columns[5].replace(/^"|"$/g, '').trim() : '0') || 0;
+                    rawImg = columns[6] || '';
+                }
+
+                // Fallback if Column D was deleted in sheet
+                if (!rewardName && columns.length >= 4) {
+                    const altName = columns[3] ? columns[3].replace(/^"|"$/g, '').trim() : '';
+                    if (altName && isNaN(altName) && !['兌換項目', '獎勵名稱', 'ID', '帳號'].includes(altName.toUpperCase())) {
+                        rewardName = altName;
+                        rewardPoints = parseInt(columns[4] ? columns[4].replace(/^"|"$/g, '').trim() : '0') || 0;
+                        rawImg = columns[5] || '';
+                    }
+                }
+
+                // Validate and save reward
+                const cleanNameUpper = rewardName.toUpperCase();
+                if (rewardName && !['兌換項目', '獎勵名稱', 'REWARD', 'NAME'].includes(cleanNameUpper)) {
+                    const imgUrl = cleanImageUrl(rawImg);
+                    rewards.push({
+                        name: rewardName,
+                        points: rewardPoints,
+                        image: imgUrl
+                    });
+                }
+            }
+            return { subs, rewards };
+        }
+
+        // Fetch all data from Google Sheets
+        async function fetchAllData(isManualRefresh = false) {
+            const refreshIcon = document.getElementById('refresh-icon');
+            if (isManualRefresh && refreshIcon) {
+                refreshIcon.classList.add('animate-spin');
+            }
+
+            try {
+                const response = await fetch(CSV_URL);
+                if (!response.ok) {
+                    throw new Error('無法取得試算表，請確認分享權限是否已開啟。');
+                }
+                const csvText = await response.text();
+                const parsed = parseCSV(csvText);
+                
+                subscribersData = parsed.subs;
+                rewardsData = parsed.rewards;
+
+                buildRewards();
+
+                // Re-trigger current search silently if user already typed a query
+                const currentInput = document.getElementById('twitch-id-input').value.trim();
+                if (currentInput) {
+                    searchPoints(false);
+                }
+
+            } catch (error) {
+                console.error('Error fetching Google Sheets data:', error);
+                setupFallbackUI();
+            } finally {
+                if (isManualRefresh && refreshIcon) {
+                    setTimeout(() => {
+                        refreshIcon.classList.remove('animate-spin');
+                    }, 600);
+                }
+            }
+        }
+
+        // Build Dynamic Reward Cards Grid
+        function buildRewards() {
+            const container = document.getElementById('rewards-container');
+            if (!container) return;
+
+            if (rewardsData.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-zinc-500 text-sm">
+                        目前尚無兌換項目數據（請確認試算表 E 欄與 F 欄是否填寫）。
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            rewardsData.forEach((reward) => {
+                let badgeText = '兌換獎勵';
+                let badgeClass = 'text-purple-400 bg-purple-950/60 border-purple-500/20';
+                
+                if (reward.points < 100) {
+                    badgeText = '熱門推薦';
+                    badgeClass = 'text-emerald-400 bg-emerald-950/60 border-emerald-500/20';
+                } else if (reward.points >= 100 && reward.points < 500) {
+                    badgeText = '實況互動';
+                    badgeClass = 'text-blue-400 bg-blue-950/60 border-blue-500/20';
+                } else if (reward.points >= 500 && reward.points < 1000) {
+                    badgeText = '高級限定';
+                    badgeClass = 'text-amber-400 bg-amber-950/60 border-amber-500/20';
+                } else if (reward.points >= 1000) {
+                    badgeText = '至尊神物';
+                    badgeClass = 'text-rose-400 bg-rose-950/60 border-rose-500/20';
+                }
+
+                const safeImage = reward.image ? reward.image.replace(/'/g, "\\'") : '';
+                const safeName = reward.name ? reward.name.replace(/'/g, "\\'") : '';
+
+                let imageBlock = '';
+                if (reward.image) {
+                    imageBlock = `
+                        <div class="w-full h-40 mb-3 rounded-lg overflow-hidden bg-zinc-950 border border-zinc-800/80 relative group/img cursor-pointer" onclick="openImageModal('${safeImage}', '${safeName}')">
+                            <img src="${reward.image}" 
+                                 alt="${reward.name}" 
+                                 class="w-full h-full object-cover transition-transform duration-300 group-hover/img:scale-105" 
+                                 onerror="this.parentElement.style.display='none'">
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white">
+                                <span class="bg-zinc-900/90 text-xs px-3 py-1.5 rounded-full border border-zinc-700 flex items-center gap-1.5 backdrop-blur-sm shadow-lg font-medium">
+                                    <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i> 點擊放大
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                html += `
+                    <div class="bg-zinc-950/60 border border-zinc-850 rounded-xl p-4 flex flex-col justify-between">
+                        <div>
+                            ${imageBlock}
+                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border ${badgeClass}">
+                                ${badgeText}
+                            </span>
+                            <h4 class="font-bold text-sm text-white mt-2 mb-1">${reward.name}</h4>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-zinc-850/80">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-zinc-500">兌換點數</span>
+                                <span class="font-bold text-emerald-400 text-sm">${reward.points.toLocaleString()} 積分</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        function openImageModal(imgSrc, title) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-image-src');
+            const modalTitle = document.getElementById('modal-image-title');
+            
+            if (!modal || !modalImg) return;
+
+            modalImg.src = imgSrc;
+            if (modalTitle) modalTitle.textContent = title || '獎勵圖片';
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('image-modal');
+            if (!modal) return;
+            
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+
+        function searchPoints(showLoaderAnimation = true) {
+            const inputField = document.getElementById('twitch-id-input');
+            const query = inputField.value.trim().toLowerCase();
+            const resultContainer = document.getElementById('result-container');
+            const resultSuccess = document.getElementById('result-success');
+            const resultError = document.getElementById('result-error');
+            const loader = document.getElementById('loader');
+
+            if (!query) {
+                resultContainer.classList.add('hidden');
+                return;
+            }
+
+            if (showLoaderAnimation) {
+                resultContainer.classList.add('hidden');
+                loader.classList.remove('hidden');
+            }
+
+            setTimeout(() => {
+                if (showLoaderAnimation) {
+                    loader.classList.add('hidden');
+                }
+                resultContainer.classList.remove('hidden');
+
+                const matchedUser = subscribersData.find(u => u.id.toLowerCase() === query);
+
+                if (matchedUser) {
+                    resultSuccess.classList.remove('hidden');
+                    resultError.classList.add('hidden');
+
+                    document.getElementById('result-user-id').textContent = matchedUser.id;
+                    document.getElementById('result-score-remaining').textContent = matchedUser.remaining.toLocaleString();
+                    document.getElementById('result-score-used').textContent = matchedUser.used.toLocaleString();
+                    document.getElementById('result-score-total').textContent = matchedUser.total.toLocaleString();
+
+                    const avatarDiv = document.getElementById('avatar-fallback');
+                    avatarDiv.textContent = matchedUser.id.substring(0, 2).toUpperCase();
+
+                    const total = matchedUser.total || 1;
+                    const usedPercentage = (matchedUser.used / total) * 100;
+
+                    document.getElementById('result-ratio-text').textContent = `使用率 ${Math.round(usedPercentage)}%`;
+                    
+                    const barUsed = document.getElementById('progress-bar-used');
+                    const barRemaining = document.getElementById('progress-bar-remaining');
+
+                    barUsed.style.width = `${usedPercentage}%`;
+                    barRemaining.style.width = `${(matchedUser.remaining / total) * 100}%`;
+                } else {
+                    resultSuccess.classList.add('hidden');
+                    resultError.classList.remove('hidden');
+                }
+            }, showLoaderAnimation ? 300 : 0);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                searchPoints();
+            }
+        }
+
+        function setupFallbackUI() {
+            console.log("Using dynamic embedded fallback dataset.");
+            subscribersData = [
+                { id: "sheng_yi_08", remaining: 420, used: 80, total: 500 },
+                { id: "twitch_mod_god", remaining: 800, used: 450, total: 1250 },
+                { id: "kappa_gamer", remaining: 150, used: 50, total: 200 },
+                { id: "pogchamp_99", remaining: 30, used: 370, total: 400 },
+                { id: "lucky_sub_user", remaining: 95, used: 5, total: 100 }
+            ];
+            rewardsData = [
+                { name: "社群特製專屬貼圖一組", points: 50, image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&auto=format&fit=crop&q=60" },
+                { name: "指定點歌 / 影片播放一次", points: 150, image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60" },
+                { name: "與台主連線開黑打遊戲一小時", points: 300, image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=60" },
+                { name: "實況主手寫客製感謝卡片 (實體)", points: 1000, image: "https://images.unsplash.com/photo-1579202673506-ca3ce28943ef?w=500&auto=format&fit=crop&q=60" }
+            ];
+            buildRewards();
+        }
+
+        window.onload = function() {
+            fetchAllData();
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        };
+    </script>
+</body>
+</html>
