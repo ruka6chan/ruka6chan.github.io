@@ -6,10 +6,10 @@
     <title>嚕卡訂閱積分查詢系統</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons for premium visual icons -->
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght=300;400;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
         body {
             font-family: 'Noto Sans TC', sans-serif;
             background-color: #0e0e10; /* Twitch Dark background */
@@ -79,42 +79,39 @@
         <!-- Search & Query Card -->
         <div class="max-w-xl mx-auto mb-12">
             <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-2xl relative overflow-hidden">
-                <!-- Background blur effects -->
-                <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
                 <div class="space-y-4">
-                    <!-- Search Input Group -->
-                    <div>
-                        <label for="twitch-id-input" class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Twitch 使用者帳號 (ID)</label>
-                        <div class="flex flex-col sm:flex-row gap-3">
+                    <!-- Search Input & Action Buttons -->
+                    <div class="space-y-3">
+                        <label for="twitch-id-input" class="block text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                            Twitch 使用者帳號 (ID)
+                        </label>
+                        <div class="flex flex-col sm:flex-row gap-2">
                             <div class="relative flex-grow">
-                                <div class="absolute inset-y-0 left-4 flex items-center text-zinc-500 pointer-events-none">
+                                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">
                                     <i data-lucide="user" class="w-5 h-5"></i>
                                 </div>
                                 <input 
                                     type="text" 
                                     id="twitch-id-input" 
                                     placeholder="例如: sheng_yi_08" 
-                                    class="w-full pl-12 pr-4 py-3.5 bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-zinc-600 font-medium transition-all"
+                                    class="w-full pl-12 pr-4 py-3.5 bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-zinc-600 font-medium transition-all"
                                     onkeypress="handleKeyPress(event)"
                                 >
                             </div>
-                            <div class="flex gap-2 w-full sm:w-auto">
+                            <!-- Buttons Group -->
+                            <div class="flex gap-2">
                                 <button 
                                     onclick="searchPoints()" 
-                                    class="flex-1 sm:flex-none px-6 py-3.5 bg-twitch-purple hover-bg-twitch-purple text-white font-bold rounded-xl transition-all text-sm shadow-md flex items-center justify-center gap-1.5 whitespace-nowrap"
+                                    class="flex-1 sm:flex-none px-5 py-3.5 bg-twitch-purple hover-bg-twitch-purple text-white font-bold rounded-xl transition-all text-sm shadow-md flex items-center justify-center gap-1"
                                 >
-                                    <i data-lucide="search" class="w-4 h-4"></i>
-                                    查詢
+                                    <i data-lucide="search" class="w-4 h-4"></i> 查詢
                                 </button>
                                 <a 
                                     href="https://pse.is/9cantr" 
                                     target="_blank" 
-                                    class="flex-1 sm:flex-none px-5 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all text-sm shadow-md flex items-center justify-center gap-1.5 whitespace-nowrap"
+                                    class="flex-1 sm:flex-none px-5 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all text-sm shadow-md flex items-center justify-center gap-1 whitespace-nowrap"
                                 >
-                                    <i data-lucide="external-link" class="w-4 h-4"></i>
-                                    立即兌換
+                                    <i data-lucide="external-link" class="w-4 h-4"></i> 立即兌換
                                 </a>
                             </div>
                         </div>
@@ -123,14 +120,13 @@
                     <!-- Loader (Hidden by default) -->
                     <div id="loader" class="hidden py-8 text-center">
                         <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
-                        <p class="text-sm text-zinc-500 mt-2">正在從 Google 表單同步最新數據...</p>
+                        <p class="text-sm text-zinc-500 mt-2">正在同步最新數據...</p>
                     </div>
 
                     <!-- Search Result (Hidden by default) -->
                     <div id="result-container" class="hidden pt-2">
                         <!-- Success Result -->
                         <div id="result-success" class="space-y-6">
-                            <!-- Divider -->
                             <div class="border-t border-zinc-800/80 my-4"></div>
 
                             <!-- User Header -->
@@ -152,7 +148,7 @@
                             <!-- Score Dashboard Grid -->
                             <div class="grid grid-cols-2 gap-4">
                                 <!-- Remaining Score -->
-                                <div class="bg-zinc-950/80 border border-zinc-800 rounded-xl p-4 text-center relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+                                <div class="bg-zinc-950/80 border border-zinc-800 rounded-xl p-4 text-center relative overflow-hidden">
                                     <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
                                     <div class="text-xs text-zinc-500 font-medium mb-1 flex items-center justify-center gap-1">
                                         <i data-lucide="sparkles" class="w-3 h-3 text-emerald-400"></i> 剩餘積分
@@ -161,7 +157,7 @@
                                 </div>
 
                                 <!-- Used Score -->
-                                <div class="bg-zinc-950/80 border border-zinc-800 rounded-xl p-4 text-center relative overflow-hidden group hover:border-zinc-700 transition-all">
+                                <div class="bg-zinc-950/80 border border-zinc-800 rounded-xl p-4 text-center relative overflow-hidden">
                                     <div class="absolute top-0 left-0 w-1 h-full bg-zinc-600"></div>
                                     <div class="text-xs text-zinc-500 font-medium mb-1 flex items-center justify-center gap-1">
                                         <i data-lucide="shopping-bag" class="w-3 h-3 text-zinc-400"></i> 已使用積分
@@ -202,75 +198,52 @@
             </div>
         </div>
 
-        <!-- Reward Redemption Catalog -->
-        <div class="max-w-3xl mx-auto bg-zinc-900/60 border border-zinc-800 rounded-2xl p-6 mt-4">
+        <!-- Reward Redemption Catalog Section (Centered, Clean Layout) -->
+        <div class="max-w-3xl mx-auto bg-zinc-900/60 border border-zinc-800 rounded-2xl p-6 md:p-8">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="font-bold text-lg flex items-center gap-2">
+                <h3 class="font-bold text-lg md:text-xl flex items-center gap-2">
                     <i data-lucide="gift" class="w-5 h-5 text-purple-400"></i>
                     精選獎勵兌換清單
                 </h3>
-                <span class="text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-full">積分解鎖</span>
+                <span class="text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 px-3 py-1 rounded-full">積分解鎖</span>
             </div>
 
             <!-- Reward Cards Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="rewards-container">
-                <!-- Dynamic reward items inserted here -->
-                <div class="animate-pulse bg-zinc-950/40 border border-zinc-850 rounded-xl p-4 h-36"></div>
-                <div class="animate-pulse bg-zinc-950/40 border border-zinc-850 rounded-xl p-4 h-36"></div>
+                <!-- Dynamic rewards generated by JS -->
             </div>
-        </div>
 
-        <!-- Notice / Important Notes Section -->
-        <div class="max-w-3xl mx-auto bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-5 mt-6">
-            <h4 class="font-bold text-sm text-zinc-300 mb-3 flex items-center gap-2">
-                <i data-lucide="alert-circle" class="w-4 h-4 text-amber-400"></i>
-                注意事項
-            </h4>
-            <ul class="space-y-2 text-xs text-zinc-400 leading-relaxed">
-                <li class="flex items-start gap-2">
-                    <span class="text-amber-400 font-bold">1.</span>
-                    <span>若積分有疑慮請連繫 MOD 處理</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="text-amber-400 font-bold">2.</span>
-                    <span>生日祝福請提早兌換</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="text-amber-400 font-bold">3.</span>
-                    <span>實體獎品兌換後出貨會通知</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="text-amber-400 font-bold">4.</span>
-                    <span>每月歐付寶抖內超過 1000 元可獲得一分</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <span class="text-amber-400 font-bold">5.</span>
-                    <span>每月最後一日更新積分</span>
-                </li>
-            </ul>
+            <!-- Precautions / Rules Card -->
+            <div class="mt-8 bg-zinc-950/60 border border-zinc-800/80 rounded-xl p-5 text-xs text-zinc-400">
+                <h4 class="font-bold text-sm text-zinc-200 mb-3 flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-purple-400"></i>
+                    注意事項
+                </h4>
+                <ul class="space-y-2 list-disc list-inside text-zinc-400 leading-relaxed">
+                    <li>若積分有疑慮請連繫 MOD 處理</li>
+                    <li>生日祝福請提早兌換</li>
+                    <li>實體獎品兌換後出貨會通知</li>
+                    <li>每月歐付寶抖內超過1000元可獲得一分</li>
+                    <li>每月最後一日更新積分</li>
+                </ul>
+            </div>
         </div>
 
     </main>
 
-    <!-- Image Lightbox Modal -->
-    <div id="image-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/80 backdrop-blur-md p-4 transition-all" onclick="closeImageModal()">
-        <div class="relative max-w-4xl max-h-[90vh] bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col items-center p-3 sm:p-5" onclick="event.stopPropagation()">
-            <!-- Close Button -->
-            <button onclick="closeImageModal()" class="absolute top-3 right-3 text-zinc-400 hover:text-white bg-zinc-800/80 hover:bg-zinc-700 p-2 rounded-full z-10 transition-colors" title="關閉">
+    <!-- Image Modal Lightbox -->
+    <div id="image-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 transition-all duration-300" onclick="closeLightbox()">
+        <div class="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-900 shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeLightbox()" class="absolute top-3 right-3 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white p-2 rounded-full z-10 transition-colors border border-zinc-700">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
-            <!-- Modal Title -->
-            <h4 id="modal-image-title" class="text-sm sm:text-base font-bold text-white mb-3 px-8 text-center truncate max-w-full"></h4>
-            <!-- Modal Image Container -->
-            <div class="overflow-auto max-h-[75vh] w-full flex items-center justify-center rounded-xl bg-zinc-950 p-2 border border-zinc-800/50">
-                <img id="modal-image-src" src="" alt="獎勵大圖" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg">
-            </div>
+            <img id="modal-image" src="" alt="獎勵圖片大圖" class="w-full h-full object-contain max-h-[85vh] rounded-2xl">
         </div>
     </div>
 
     <!-- Footer -->
     <footer class="border-t border-zinc-900 bg-zinc-950 py-6 text-center text-xs text-zinc-500">
-        <div class="max-w-6xl mx-auto px-4 space-y-2">
+        <div class="max-w-6xl mx-auto px-4 space-y-1">
             <p>© 2026 嚕卡訂閱積分查詢系統. All rights reserved.</p>
             <p>非官方自製小工具</p>
         </div>
@@ -278,45 +251,48 @@
 
     <!-- Custom JavaScript -->
     <script>
-        // Global variables
         const SPREADSHEET_ID = '120hy8SEoR8dzuRT18XL375FFAlFXDvE4JzYKcaALZdA';
         const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv`;
         
         let subscribersData = [];
         let rewardsData = [];
 
-        // Intelligent URL extractor & converter for Google Sheets images
-        function cleanImageUrl(rawStr) {
-            if (!rawStr) return '';
-            
-            let cleaned = rawStr.replace(/^"|"$/g, '').trim();
-            
-            // Extract http/https URL if embedded in =IMAGE("...") formula or text
-            const match = cleaned.match(/https?:\/\/[^\s"'<>()]+/i);
-            if (!match) return '';
-            
-            let url = match[0];
-            
-            // Handle Google Drive Share Links
-            if (url.includes('drive.google.com')) {
-                const idMatch = url.match(/\/file\/d\/([^\/]+)/) || url.match(/[?&]id=([^&]+)/);
-                if (idMatch && idMatch[1]) {
-                    return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+        async function fetchAllData(isManualRefresh = false) {
+            const refreshIcon = document.getElementById('refresh-icon');
+            if (isManualRefresh && refreshIcon) {
+                refreshIcon.classList.add('animate-spin');
+            }
+
+            try {
+                const response = await fetch(CSV_URL);
+                if (!response.ok) {
+                    throw new Error('無法取得試算表，請確認分享權限已開啟。');
+                }
+                const csvText = await response.text();
+                
+                const parsedResult = parseCSV(csvText);
+                subscribersData = parsedResult.subs;
+                rewardsData = parsedResult.rewards;
+
+                buildRewards();
+                
+                const currentInput = document.getElementById('twitch-id-input').value.trim();
+                if (currentInput) {
+                    searchPoints(false);
+                }
+
+            } catch (error) {
+                console.error('Error fetching Google Sheets data:', error);
+                setupFallbackUI();
+            } finally {
+                if (isManualRefresh && refreshIcon) {
+                    setTimeout(() => {
+                        refreshIcon.classList.remove('animate-spin');
+                    }, 600);
                 }
             }
-            
-            // Handle Imgur Page Links
-            if (url.includes('imgur.com') && !url.includes('i.imgur.com')) {
-                const imgurMatch = url.match(/imgur\.com\/([a-zA-Z0-9]+)/);
-                if (imgurMatch && imgurMatch[1]) {
-                    return `https://i.imgur.com/${imgurMatch[1]}.png`;
-                }
-            }
-            
-            return url;
         }
 
-        // Custom CSV parser handling quotes safely and multi-column mapping
         function parseCSV(text) {
             const lines = text.split(/\r?\n/);
             const subs = [];
@@ -343,104 +319,70 @@
                 }
                 columns.push(currentWord.trim());
 
-                // Map A (ID), B (Remaining Points), C (Used Points)
+                // Map A (ID), B (Total Points), C (Used Points)
                 if (columns.length >= 3) {
                     const cleanId = columns[0].replace(/^"|"$/g, '').trim();
-                    const cleanRemaining = parseInt(columns[1].replace(/^"|"$/g, '').trim()) || 0;
+                    const rawB = parseInt(columns[1].replace(/^"|"$/g, '').trim()) || 0;
                     const cleanUsed = parseInt(columns[2].replace(/^"|"$/g, '').trim()) || 0;
+
+                    // 剩餘積分 = B 欄積分扣除 C 欄已使用積分
+                    const cleanRemaining = Math.max(0, rawB - cleanUsed);
+                    const cleanTotal = rawB;
 
                     if (cleanId && !['ID', '帳號', 'TWITCH ID', '使用者帳號'].includes(cleanId.toUpperCase())) {
                         subs.push({
                             id: cleanId,
                             remaining: cleanRemaining,
                             used: cleanUsed,
-                            total: cleanRemaining + cleanUsed
+                            total: cleanTotal
                         });
                     }
                 }
 
                 // Map E (Reward Name), F (Required Points), G (Image URL)
-                let rewardName = '';
-                let rewardPoints = 0;
-                let rawImg = '';
+                if (columns.length >= 6) {
+                    const cleanName = columns[4] ? columns[4].replace(/^"|"$/g, '').trim() : '';
+                    const cleanCost = parseInt(columns[5] ? columns[5].replace(/^"|"$/g, '').trim() : '0') || 0;
+                    
+                    let rawImage = columns.length >= 7 ? columns[6].replace(/^"|"$/g, '').trim() : '';
 
-                if (columns.length >= 5) {
-                    rewardName = columns[4] ? columns[4].replace(/^"|"$/g, '').trim() : '';
-                    rewardPoints = parseInt(columns[5] ? columns[5].replace(/^"|"$/g, '').trim() : '0') || 0;
-                    rawImg = columns[6] || '';
-                }
+                    // Extract URL if =IMAGE("...") formula is used
+                    if (rawImage.includes('=IMAGE(')) {
+                        const match = rawImage.match(/=IMAGE\s*\(\s*["']([^"']+)["']\s*\)/i);
+                        if (match && match[1]) {
+                            rawImage = match[1];
+                        }
+                    }
 
-                // Fallback if Column D was deleted in sheet
-                if (!rewardName && columns.length >= 4) {
-                    const altName = columns[3] ? columns[3].replace(/^"|"$/g, '').trim() : '';
-                    if (altName && isNaN(altName) && !['兌換項目', '獎勵名稱', 'ID', '帳號'].includes(altName.toUpperCase())) {
-                        rewardName = altName;
-                        rewardPoints = parseInt(columns[4] ? columns[4].replace(/^"|"$/g, '').trim() : '0') || 0;
-                        rawImg = columns[5] || '';
+                    // Handle Google Drive Links
+                    if (rawImage.includes('drive.google.com')) {
+                        const driveIdMatch = rawImage.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                        if (driveIdMatch && driveIdMatch[1]) {
+                            rawImage = `https://lh3.googleusercontent.com/d/${driveIdMatch[1]}`;
+                        }
+                    }
+
+                    if (cleanName && !['兌換項目', '項目', '獎勵名稱', 'REWARD'].includes(cleanName.toUpperCase())) {
+                        rewards.push({
+                            name: cleanName,
+                            cost: cleanCost,
+                            image: rawImage
+                        });
                     }
                 }
-
-                // Validate and save reward
-                const cleanNameUpper = rewardName.toUpperCase();
-                if (rewardName && !['兌換項目', '獎勵名稱', 'REWARD', 'NAME'].includes(cleanNameUpper)) {
-                    const imgUrl = cleanImageUrl(rawImg);
-                    rewards.push({
-                        name: rewardName,
-                        points: rewardPoints,
-                        image: imgUrl
-                    });
-                }
             }
+
             return { subs, rewards };
         }
 
-        // Fetch all data from Google Sheets
-        async function fetchAllData(isManualRefresh = false) {
-            const refreshIcon = document.getElementById('refresh-icon');
-            if (isManualRefresh && refreshIcon) {
-                refreshIcon.classList.add('animate-spin');
-            }
-
-            try {
-                const response = await fetch(CSV_URL);
-                if (!response.ok) {
-                    throw new Error('無法取得試算表，請確認分享權限是否已開啟。');
-                }
-                const csvText = await response.text();
-                const parsed = parseCSV(csvText);
-                
-                subscribersData = parsed.subs;
-                rewardsData = parsed.rewards;
-
-                buildRewards();
-
-                // Re-trigger current search silently if user already typed a query
-                const currentInput = document.getElementById('twitch-id-input').value.trim();
-                if (currentInput) {
-                    searchPoints(false);
-                }
-
-            } catch (error) {
-                console.error('Error fetching Google Sheets data:', error);
-                setupFallbackUI();
-            } finally {
-                if (isManualRefresh && refreshIcon) {
-                    setTimeout(() => {
-                        refreshIcon.classList.remove('animate-spin');
-                    }, 600);
-                }
-            }
-        }
-
-        // Build Dynamic Reward Cards Grid
         function buildRewards() {
             const container = document.getElementById('rewards-container');
             if (!container) return;
 
             if (rewardsData.length === 0) {
                 container.innerHTML = `
-                    <div class="col-span-full text-center py-12 text-zinc-500 text-sm">
-                        目前尚無兌換項目數據（請確認試算表 E 欄與 F 欄是否填寫）。
+                    <div class="col-span-full text-center py-8 text-zinc-500 text-sm">
+                        目前尚無開放兌換的獎勵項目。
                     </div>
                 `;
                 return;
@@ -448,37 +390,31 @@
 
             let html = '';
             rewardsData.forEach((reward) => {
-                const safeImage = reward.image ? reward.image.replace(/'/g, "\\'") : '';
-                const safeName = reward.name ? reward.name.replace(/'/g, "\\'") : '';
-
-                let imageBlock = '';
-                if (reward.image) {
-                    imageBlock = `
-                        <div class="w-full h-40 mb-3 rounded-lg overflow-hidden bg-zinc-950 border border-zinc-800/80 relative group/img cursor-pointer" onclick="openImageModal('${safeImage}', '${safeName}')">
-                            <img src="${reward.image}" 
-                                 alt="${reward.name}" 
-                                 class="w-full h-full object-cover transition-transform duration-300 group-hover/img:scale-105" 
-                                 onerror="this.parentElement.style.display='none'">
-                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white">
-                                <span class="bg-zinc-900/90 text-xs px-3 py-1.5 rounded-full border border-zinc-700 flex items-center gap-1.5 backdrop-blur-sm shadow-lg font-medium">
-                                    <i data-lucide="zoom-in" class="w-3.5 h-3.5"></i> 點擊放大
-                                </span>
-                            </div>
-                        </div>
-                    `;
-                }
-
+                const hasImage = reward.image && reward.image.length > 5;
+                
                 html += `
                     <div class="bg-zinc-950/60 border border-zinc-850 rounded-xl p-4 flex flex-col justify-between">
                         <div>
-                            ${imageBlock}
+                            ${hasImage ? `
+                                <div class="mb-3 rounded-lg overflow-hidden bg-zinc-900 border border-zinc-800 h-36 flex items-center justify-center relative cursor-pointer group" onclick="openLightbox('${reward.image}')">
+                                    <img 
+                                        src="${reward.image}" 
+                                        alt="${reward.name}" 
+                                        class="w-full h-full object-cover" 
+                                        onerror="this.parentElement.style.display='none'"
+                                    />
+                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs gap-1 font-semibold">
+                                        <i data-lucide="zoom-in" class="w-4 h-4"></i> 點擊放大
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
                             <h4 class="font-bold text-sm text-white mt-1 mb-1">${reward.name}</h4>
                         </div>
-                        <div class="mt-4 pt-3 border-t border-zinc-850/80">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs text-zinc-500">兌換點數</span>
-                                <span class="font-bold text-emerald-400 text-sm">${reward.points.toLocaleString()} 積分</span>
-                            </div>
+
+                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-zinc-850">
+                            <span class="text-xs text-zinc-500">所需點數</span>
+                            <span class="font-bold text-emerald-400 text-sm">${reward.cost.toLocaleString()} 積分</span>
                         </div>
                     </div>
                 `;
@@ -490,36 +426,23 @@
             }
         }
 
-        function openImageModal(imgSrc, title) {
+        function openLightbox(imageUrl) {
             const modal = document.getElementById('image-modal');
-            const modalImg = document.getElementById('modal-image-src');
-            const modalTitle = document.getElementById('modal-image-title');
-            
-            if (!modal || !modalImg) return;
-
-            modalImg.src = imgSrc;
-            if (modalTitle) modalTitle.textContent = title || '獎勵圖片';
-            
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            if (window.lucide) {
-                lucide.createIcons();
+            const modalImg = document.getElementById('modal-image');
+            if (modal && modalImg) {
+                modalImg.src = imageUrl;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
             }
         }
 
-        function closeImageModal() {
+        function closeLightbox() {
             const modal = document.getElementById('image-modal');
-            if (!modal) return;
-            
-            modal.classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeImageModal();
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
             }
-        });
+        }
 
         function searchPoints(showLoaderAnimation = true) {
             const inputField = document.getElementById('twitch-id-input');
@@ -561,19 +484,17 @@
 
                     const total = matchedUser.total || 1;
                     const usedPercentage = (matchedUser.used / total) * 100;
+                    const remainingPercentage = (matchedUser.remaining / total) * 100;
 
                     document.getElementById('result-ratio-text').textContent = `使用率 ${Math.round(usedPercentage)}%`;
                     
-                    const barUsed = document.getElementById('progress-bar-used');
-                    const barRemaining = document.getElementById('progress-bar-remaining');
-
-                    barUsed.style.width = `${usedPercentage}%`;
-                    barRemaining.style.width = `${(matchedUser.remaining / total) * 100}%`;
+                    document.getElementById('progress-bar-used').style.width = `${usedPercentage}%`;
+                    document.getElementById('progress-bar-remaining').style.width = `${remainingPercentage}%`;
                 } else {
                     resultSuccess.classList.add('hidden');
                     resultError.classList.remove('hidden');
                 }
-            }, showLoaderAnimation ? 300 : 0);
+            }, showLoaderAnimation ? 350 : 0);
         }
 
         function handleKeyPress(event) {
@@ -582,20 +503,20 @@
             }
         }
 
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+
         function setupFallbackUI() {
-            console.log("Using dynamic embedded fallback dataset.");
             subscribersData = [
                 { id: "sheng_yi_08", remaining: 420, used: 80, total: 500 },
-                { id: "twitch_mod_god", remaining: 800, used: 450, total: 1250 },
-                { id: "kappa_gamer", remaining: 150, used: 50, total: 200 },
-                { id: "pogchamp_99", remaining: 30, used: 370, total: 400 },
-                { id: "lucky_sub_user", remaining: 95, used: 5, total: 100 }
+                { id: "twitch_mod_god", remaining: 800, used: 450, total: 1250 }
             ];
             rewardsData = [
-                { name: "社群特製專屬貼圖一組", points: 50, image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&auto=format&fit=crop&q=60" },
-                { name: "指定點歌 / 影片播放一次", points: 150, image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&auto=format&fit=crop&q=60" },
-                { name: "與台主連線開黑打遊戲一小時", points: 300, image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=60" },
-                { name: "實況主手寫客製感謝卡片 (實體)", points: 1000, image: "https://images.unsplash.com/photo-1579202673506-ca3ce28943ef?w=500&auto=format&fit=crop&q=60" }
+                { name: "社群特製專屬貼圖一組", cost: 50, image: "" },
+                { name: "指定點歌 / 影片播放一次", cost: 150, image: "" }
             ];
             buildRewards();
         }
