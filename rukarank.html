@@ -360,7 +360,7 @@
         // Parse CSV Columns:
         // Subscriber Points: Column A (ID), B (Total Points Earned), C (Used Points)
         // Calculated Remaining Points: B - C
-        // Rewards Catalog: Column E (Reward Name), F (Points Cost), G (Image URL)
+        // Rewards Catalog: Column E (Reward Name), F (Details), G (Points Cost), H (Image URL)
         function parseCSV(text) {
             const lines = text.split(/\r?\n/);
             subscribersData = [];
@@ -404,16 +404,18 @@
                     }
                 }
 
-                // Parse Columns E, F, G for Rewards
-                if (columns.length >= 6) {
-                    const rewardTitle = columns[4].replace(/^"|"$/g, '').trim();
-                    const pointsCost = parseInt(columns[5].replace(/^"|"$/g, '').trim()) || 0;
-                    const rawImageUrl = columns[6] ? columns[6].trim() : '';
+                // Parse Columns E, F, G, H for Rewards
+                if (columns.length >= 5) { // E 欄 (index 4) 起
+                    const rewardTitle = columns[4] ? columns[4].replace(/^"|"$/g, '').trim() : '';
+                    const rewardDetails = columns[5] ? columns[5].replace(/^"|"$/g, '').trim() : '';
+                    const pointsCost = columns[6] ? parseInt(columns[6].replace(/^"|"$/g, '').trim()) || 0 : 0;
+                    const rawImageUrl = columns[7] ? columns[7].trim() : '';
                     const imageUrl = cleanImageUrl(rawImageUrl);
 
                     if (rewardTitle) {
                         rewardsData.push({
                             title: rewardTitle,
+                            details: rewardDetails,
                             points: pointsCost,
                             imageUrl: imageUrl
                         });
@@ -457,6 +459,7 @@
                                 </div>
                             ` : ''}
                             <h4 class="font-bold text-sm text-white mb-1">${reward.title}</h4>
+                            ${reward.details ? `<p class="text-xs text-zinc-400 mt-1.5 whitespace-pre-line leading-relaxed">${reward.details}</p>` : ''}
                         </div>
                         <div class="flex items-center justify-between mt-4 pt-3 border-t border-zinc-850">
                             <span class="text-xs text-zinc-500">所需點數</span>
@@ -562,8 +565,8 @@
                 { id: "twitch_mod_god", remaining: 800, used: 450, total: 1250 }
             ];
             rewardsData = [
-                { title: "社群特製專屬貼圖一組", points: 50, imageUrl: "" },
-                { title: "指定點歌 / 影片播放一次", points: 150, imageUrl: "" }
+                { title: "社群特製專屬貼圖一組", details: "領取後於 Twitch / Discord 均可使用", points: 50, imageUrl: "" },
+                { title: "指定點歌 / 影片播放一次", details: "限 5 分鐘內公開內容", points: 150, imageUrl: "" }
             ];
             buildRewards();
         }
